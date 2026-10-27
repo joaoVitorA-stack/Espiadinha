@@ -27,6 +27,9 @@
       <button class="nav-item" type="button" data-view="usuario">
         <span aria-hidden="true">♙</span> Minha área
       </button>
+      <button class="nav-item hidden" id="adminNav" type="button" data-view="admin">
+        <span aria-hidden="true">⚙</span> Administração
+      </button>
     </nav>
 
     <div class="sidebar-status">
@@ -108,6 +111,26 @@
         </div>
         <div class="favorites-head"><div><p class="eyebrow">Coleção pessoal</p><h3>Músicas favoritas</h3></div><p id="favoriteCount">0 músicas</p></div>
         <div class="favorite-grid" id="favoriteGrid"></div>
+      </div>
+    </section>
+
+    <section class="admin-section hidden" id="adminView">
+      <div class="admin-header">
+        <div><p class="eyebrow">Painel restrito</p><h2>Administração</h2></div>
+        <button class="primary-button" id="adminNewSongButton" type="button"><span aria-hidden="true">+</span> Nova música</button>
+      </div>
+      <div class="admin-stats">
+        <article><p>Músicas cadastradas</p><strong id="adminSongCount">0</strong></article>
+        <article><p>Usuários cadastrados</p><strong id="adminUserCount">0</strong></article>
+        <article><p>Favoritos totais</p><strong id="adminFavoriteCount">0</strong></article>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-title"><h3>Músicas</h3><p>Gerencie os registros do catálogo</p></div>
+        <div class="admin-table" id="adminSongTable"></div>
+      </div>
+      <div class="admin-table-wrap">
+        <div class="admin-table-title"><h3>Usuários</h3><p>Contas cadastradas na coleção de usuários</p></div>
+        <div class="admin-table" id="adminUserTable"></div>
       </div>
     </section>
   </main>

@@ -17,6 +17,7 @@ import {
   getDoc,
   setDoc,
   onSnapshot,
+  getDocs,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 
@@ -210,11 +211,14 @@ document.querySelectorAll(".nav-item").forEach((button) => {
     button.classList.add("active");
     const isSearch = button.dataset.view === "buscar";
     const isAccount = button.dataset.view === "usuario";
-    document.querySelector("#catalogView").classList.toggle("hidden", isSearch || isAccount);
+    const isAdmin = button.dataset.view === "admin";
+    document.querySelector("#catalogView").classList.toggle("hidden", isSearch || isAccount || isAdmin);
     document.querySelector("#searchView").classList.toggle("hidden", !isSearch);
     document.querySelector("#accountView").classList.toggle("hidden", !isAccount);
-    document.querySelector("#newSongButton").classList.toggle("hidden", isSearch || isAccount);
+    document.querySelector("#adminView").classList.toggle("hidden", !isAdmin);
+    document.querySelector("#newSongButton").classList.toggle("hidden", isSearch || isAccount || isAdmin);
     if (isAccount) renderAccount();
+    if (isAdmin && currentProfile?.admin === true) renderAdmin();
   });
 });
 
@@ -302,7 +306,7 @@ document.querySelector("#registerForm").addEventListener("submit", async (event)
   try {
     const credential = await createUserWithEmailAndPassword(auth, usernameToEmail(name), password);
     await updateProfile(credential.user, { displayName: name });
-    await setDoc(doc(db, "espiadinha-usuarios", credential.user.uid), { name, favorites: [] }, { merge: true });
+    await setDoc(doc(db, "espiadinha-usuarios", credential.user.uid), { name, favorites: [], admin: false }, { merge: true });
     event.target.reset();
     setAuthError("");
     showToast("Conta criada com sucesso");
@@ -326,6 +330,7 @@ document.querySelector("#loginForm").addEventListener("submit", async (event) =>
 
 document.querySelector("#logoutButton").addEventListener("click", async () => {
   await signOut(auth);
+  document.querySelector('[data-view="usuario"]').click();
   showToast("Você saiu da sua conta");
 });
 
@@ -388,8 +393,57 @@ onAuthStateChanged(auth, async (user) => {
       console.error(error);
     }
   }
+  document.querySelector("#adminNav").classList.toggle("hidden", currentProfile?.admin !== true);
+  if (currentProfile?.admin !== true && document.querySelector("#adminView").classList.contains("hidden") === false) {
+    document.querySelector('[data-view="catalogo"]').click();
+  }
   renderAccount();
   renderSongs(elements.librarySearch.value);
+});
+
+async function renderAdmin() {
+  if (currentProfile?.admin !== true) return;
+  document.querySelector("#adminSongCount").textContent = songs.length;
+
+  try {
+    const snapshot = await getDocs(collection(db, "espiadinha-usuarios"));
+    const users = snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
+    document.querySelector("#adminUserCount").textContent = users.length;
+    document.querySelector("#adminFavoriteCount").textContent = users.reduce((total, user) => total + (user.favorites?.length || 0), 0);
+    document.querySelector("#adminUserTable").innerHTML = users.length ? users.map((user) => `
+      <div class="admin-row">
+        <div><strong>${escapeHtml(user.name || "Sem nome")}</strong><small>${escapeHtml(user.admin ? "Administrador" : "Usuário")}</small></div>
+        <span>${user.favorites?.length || 0} favoritos</span>
+      </div>
+    `).join("") : '<div class="admin-empty">Nenhum usuário cadastrado.</div>';
+  } catch (error) {
+    console.error(error);
+    document.querySelector("#adminUserTable").innerHTML = '<div class="admin-empty">Não foi possível carregar os usuários.</div>';
+  }
+
+  document.querySelector("#adminSongTable").innerHTML = songs.length ? songs.map((song) => `
+    <div class="admin-row">
+      <div><strong>${escapeHtml(song.title)}</strong><small>${escapeHtml(song.artist)}</small></div>
+      <div class="admin-row-actions">
+        <button class="text-button" type="button" data-admin-action="edit" data-id="${song.id}">Editar</button>
+        <button class="text-button danger" type="button" data-admin-action="delete" data-id="${song.id}">Excluir</button>
+      </div>
+    </div>
+  `).join("") : '<div class="admin-empty">Nenhuma música cadastrada.</div>';
+}
+
+document.querySelector("#adminNewSongButton").addEventListener("click", () => openSongDialog());
+document.querySelector("#adminSongTable").addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-admin-action]");
+  if (!button) return;
+  const song = songs.find((item) => item.id === button.dataset.id);
+  if (!song) return;
+  if (button.dataset.adminAction === "edit") openSongDialog(song);
+  if (button.dataset.adminAction === "delete") {
+    if (!confirm(`Excluir "${song.title}" do catálogo?`)) return;
+    await deleteDoc(doc(db, "musicas", song.id));
+    showToast("Música excluída");
+  }
 });
 
 renderSongs();
