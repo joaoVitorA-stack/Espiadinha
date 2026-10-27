@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1C3041">
+  <title>Espiadinha - Catálogo Musical</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=display" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="#" aria-label="Espiadinha, início">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <span>Espiadinha</span>
+    </a>
+
+    <nav class="nav" aria-label="Navegação principal">
+      <button class="nav-item active" type="button" data-view="catalogo">
+        <span aria-hidden="true">♪</span> Catálogo
+      </button>
+      <button class="nav-item" type="button" data-view="buscar">
+        <span aria-hidden="true">⌕</span> Buscar letra
+      </button>
+      <button class="nav-item" type="button" data-view="usuario">
+        <span aria-hidden="true">♙</span> Minha área
+      </button>
+    </nav>
+
+    <div class="sidebar-status">
+      <span class="status-dot"></span>
+      <span>Firebase conectado</span>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Sua biblioteca</p>
+        <h1>Catálogo musical</h1>
+      </div>
+      <button class="primary-button" id="newSongButton" type="button">
+        <span aria-hidden="true">+</span> Nova música
+      </button>
+    </header>
+
+    <section class="catalog-section" id="catalogView">
+      <div class="toolbar">
+        <label class="search-box" for="librarySearch">
+          <span aria-hidden="true">⌕</span>
+          <input id="librarySearch" type="search" placeholder="Buscar no catálogo" autocomplete="off">
+        </label>
+        <p class="song-count" id="songCount">0 músicas</p>
+      </div>
+
+      <div class="song-grid" id="songGrid" aria-live="polite"></div>
+    </section>
+
+    <section class="search-section hidden" id="searchView">
+      <div class="search-panel">
+        <p class="eyebrow">Lyrics.ovh</p>
+        <h2>Pesquise uma música</h2>
+        <form id="lyricsForm" class="lyrics-form lyrics-search-only">
+          <label>
+            Música ou artista
+            <input id="musicSearchInput" type="search" placeholder="Ex: Tempo Perdido ou Legião Urbana" required>
+          </label>
+          <button class="primary-button" type="submit">Buscar</button>
+        </form>
+        <div class="lyrics-result" id="lyricsResult">
+          <p>Informe artista e música para consultar a letra.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="account-section hidden" id="accountView">
+      <div class="account-shell" id="authPanel">
+        <div class="auth-brand">
+          <span class="brand-mark" aria-hidden="true">E</span>
+          <p>Espiadinha</p>
+        </div>
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" type="button" data-auth-tab="login">Entrar</button>
+          <button class="auth-tab" type="button" data-auth-tab="register">Cadastrar</button>
+        </div>
+
+        <form class="auth-form" id="loginForm">
+          <label>Nome de usuário<input id="loginName" type="text" autocomplete="username" required maxlength="40"></label>
+          <label>Senha<input id="loginPassword" type="password" autocomplete="current-password" required minlength="6"></label>
+          <button class="primary-button" type="submit">Entrar na minha área</button>
+        </form>
+
+        <form class="auth-form hidden" id="registerForm">
+          <label>Nome de usuário<input id="registerName" type="text" autocomplete="username" required maxlength="40"></label>
+          <label>Senha<input id="registerPassword" type="password" autocomplete="new-password" required minlength="6"></label>
+          <button class="primary-button" type="submit">Criar conta</button>
+        </form>
+        <p class="auth-error" id="authError" role="alert"></p>
+      </div>
+
+      <div class="profile-panel hidden" id="profilePanel">
+        <div class="profile-header">
+          <div class="profile-avatar" id="profileAvatar">U</div>
+          <div><p class="eyebrow">Minha área</p><h2 id="profileName">Usuário</h2></div>
+          <button class="secondary-button" id="logoutButton" type="button">Sair</button>
+        </div>
+        <div class="favorites-head"><div><p class="eyebrow">Coleção pessoal</p><h3>Músicas favoritas</h3></div><p id="favoriteCount">0 músicas</p></div>
+        <div class="favorite-grid" id="favoriteGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="song-dialog" id="songDialog">
+    <form id="songForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Catálogo</p>
+          <h2 id="dialogTitle">Nova música</h2>
+        </div>
+        <button class="icon-button" id="closeDialogButton" type="button" aria-label="Fechar">×</button>
+      </div>
+
+      <input id="songId" type="hidden">
+      <div class="form-grid">
+        <label class="full-field">
+          Título da música
+          <input id="songTitle" type="text" placeholder="Nome da música" required maxlength="80">
+        </label>
+        <label>
+          Artista
+          <input id="songArtist" type="text" placeholder="Nome do artista" required maxlength="80">
+        </label>
+        <label>
+          Álbum
+          <input id="songAlbum" type="text" placeholder="Nome do álbum" maxlength="80">
+        </label>
+        <label class="full-field">
+          Comentário
+          <textarea id="songComment" placeholder="Por que essa música é especial?" maxlength="300"></textarea>
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="secondary-button" id="cancelDialogButton" type="button">Cancelar</button>
+        <button class="primary-button" type="submit">Salvar música</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="script.js"></script>
+</body>
+</html>
