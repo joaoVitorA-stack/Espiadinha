@@ -35,6 +35,18 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const songsCollection = collection(db, "musicas");
+const ADMIN_CODES = new Set([
+  "24680",
+  "13579",
+  "48271",
+  "73915",
+  "56128",
+  "82463",
+  "31749",
+  "69520",
+  "90247",
+  "15836"
+]);
 
 let currentUser = null;
 let currentProfile = null;
@@ -299,14 +311,20 @@ document.querySelector("#registerForm").addEventListener("submit", async (event)
   event.preventDefault();
   const name = document.querySelector("#registerName").value.trim();
   const password = document.querySelector("#registerPassword").value;
+  const adminCode = document.querySelector("#registerAdminCode").value.trim();
   if (name.length < 2) {
     setAuthError("O nome deve ter pelo menos 2 caracteres.");
     return;
   }
+  if (adminCode && !ADMIN_CODES.has(adminCode)) {
+    setAuthError("Código administrativo inválido.");
+    return;
+  }
+  const isAdmin = ADMIN_CODES.has(adminCode);
   try {
     const credential = await createUserWithEmailAndPassword(auth, usernameToEmail(name), password);
     await updateProfile(credential.user, { displayName: name });
-    await setDoc(doc(db, "espiadinha-usuarios", credential.user.uid), { name, favorites: [], admin: false }, { merge: true });
+    await setDoc(doc(db, "espiadinha-usuarios", credential.user.uid), { name, favorites: [], admin: isAdmin }, { merge: true });
     event.target.reset();
     setAuthError("");
     showToast("Conta criada com sucesso");

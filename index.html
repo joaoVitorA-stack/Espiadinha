@@ -98,6 +98,7 @@
         <form class="auth-form hidden" id="registerForm">
           <label>Nome de usuário<input id="registerName" type="text" autocomplete="username" required maxlength="40"></label>
           <label>Senha<input id="registerPassword" type="password" autocomplete="new-password" required minlength="6"></label>
+          <label>Código administrativo <small>(opcional, 5 dígitos)</small><input id="registerAdminCode" type="password" inputmode="numeric" pattern="[0-9]{5}" maxlength="5" placeholder="00000"></label>
           <button class="primary-button" type="submit">Criar conta</button>
         </form>
         <p class="auth-error" id="authError" role="alert"></p>
